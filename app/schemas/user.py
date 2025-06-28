@@ -63,3 +63,23 @@ class VerifyOtpRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     email: str
     new_password: str
+    
+    
+class UserProfile(BaseModel):
+    email: EmailStr
+    phone_number: str
+    business_license: Optional[str]
+    permissions: List[str]
+    business_id: Optional[int]
+    branch_id: Optional[int]
+
+    class Config:
+        from_attributes = True
+
+class UserProfileUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    phone_number: Optional[str] = None
+    business_license: Optional[str] = None
+
+    class Config:
+        from_attributes = True  
