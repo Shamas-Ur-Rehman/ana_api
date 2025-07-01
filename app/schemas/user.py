@@ -5,7 +5,7 @@ from datetime import datetime
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password:  instr(min_length=8, max_length=128)
+    password: constr(min_length=8, max_length=128)
     role_id: Optional[int]
     business_id: Optional[int]
     branch_id: Optional[int]
