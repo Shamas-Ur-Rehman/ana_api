@@ -11,8 +11,6 @@ class UserCreate(BaseModel):
     branch_id: Optional[int]
     phone_number: Optional[str]
     business_license: Optional[str]
-
-    # ✅ Add these two fields
     otp_code: Optional[str] = None
     otp_expiry: Optional[datetime] = None
 
