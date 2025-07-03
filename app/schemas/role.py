@@ -1,13 +1,25 @@
 from pydantic import BaseModel
+from typing import List
 
-class RoleBase(BaseModel):
+class ModulePermission(BaseModel):
+    id: int
+    name: str
+    permissions: List[str]
+
+class RoleCreate(BaseModel):
+    name: str
+    modules: List[ModulePermission]
+class ModuleInfo(BaseModel):
+    id: int
     name: str
 
-class RoleCreate(RoleBase):
-    pass
+    class Config:
+        from_attributes = True
 
-class RoleResponse(RoleBase):
+class PermissionResponse(BaseModel):
     id: int
+    name: str
+    module: ModuleInfo 
 
     class Config:
-         from_attributes = True
+        from_attributes = True
