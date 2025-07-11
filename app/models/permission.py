@@ -2,8 +2,6 @@ from sqlalchemy import Column, Integer, String, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db import Base
 
-# ================== Association Tables ==================
-
 role_permissions = Table(
     'role_permissions',
     Base.metadata,
@@ -18,8 +16,6 @@ user_permissions = Table(
     Column('permission_id', Integer, ForeignKey('permissions.id'))
 )
 
-# ================== Business ==================
-
 class Business(Base):
     __tablename__ = "businesses"
     id = Column(Integer, primary_key=True, index=True)
@@ -27,10 +23,8 @@ class Business(Base):
     address = Column(String)
 
     branches = relationship("Branch", back_populates="business")
-    users = relationship("User", back_populates="business")
-
-# ================== Branch ==================
-
+    # users = relationship("User", back_populates="business")
+    
 class Branch(Base):
     __tablename__ = "branches"
     id = Column(Integer, primary_key=True, index=True)
@@ -39,10 +33,7 @@ class Branch(Base):
 
     business_id = Column(Integer, ForeignKey('businesses.id'))
     business = relationship("Business", back_populates="branches")
-    users = relationship("User", back_populates="branch")
-
-
-# ================== Permission ==================
+    # users = relationship("User", back_populates="branch")
 
 class Permission(Base):
     __tablename__ = "permissions"

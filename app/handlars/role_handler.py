@@ -18,7 +18,7 @@ class RoleHandler:
         return role
 
     async def update_role(role_id: int, role: RoleCreate, db: Session = Depends(get_db)):
-        updated = RoleService(db).update_role(role_id, role.name)
+        updated = RoleService(db).update_role(role_id, role)
         if not updated:
             raise HTTPException(status_code=404, detail="Role not found")
         return updated

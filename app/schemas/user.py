@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr, constr ,validator
 from typing import List, Optional
 from datetime import datetime
 
@@ -6,21 +6,21 @@ from datetime import datetime
 class UserCreate(BaseModel):
     email: EmailStr
     password: constr(min_length=8, max_length=128)
-    role_id: Optional[int]
-    business_id: Optional[int]
-    branch_id: Optional[int]
-    phone_number: Optional[str]
-    business_license: Optional[str]
+    role_id: Optional[int] = None
+    phone_number: Optional[str] = None
+    business_license: Optional[str] = None
     otp_code: Optional[str] = None
     otp_expiry: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
-
+    @validator("email")
+    def normalize_email(cls, v):
+        return v.lower()
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
-
+    @validator("email")
+    def normalize_email(cls, v):
+        return v.lower()
 
 class UserResponse(BaseModel):
     id: int
@@ -29,9 +29,8 @@ class UserResponse(BaseModel):
     is_phone_verified: bool
     role: Optional[str]
     permissions: List[str]
-    business_id: Optional[int]
-    branch_id: Optional[int]
     business_license: Optional[str]
+    
 
     class Config:
         from_attributes = True
@@ -68,8 +67,6 @@ class UserProfile(BaseModel):
     phone_number: str
     business_license: Optional[str]
     permissions: List[str]
-    business_id: Optional[int]
-    branch_id: Optional[int]
 
     class Config:
         from_attributes = True

@@ -1,4 +1,3 @@
-# app/services/role_service.py
 from app.models.role import Role
 from app.repo.role_repo import RoleRepository
 

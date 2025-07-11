@@ -3,6 +3,9 @@ from app.models.role import Role
 from app.models.permission import Permission
 from app.models.module import Module
 from app.schemas.role import RoleCreate
+from fastapi import HTTPException
+import logging
+logger = logging.getLogger(__name__)
 
 
 class RoleRepository:
@@ -10,11 +13,14 @@ class RoleRepository:
         self.db = db
 
     def create(self, role: RoleCreate):
+        
+        existing_role = self.db.query(Role).filter(Role.name.ilike(role.name)).first()
+        if existing_role:
+            raise HTTPException(status_code=400, detail=f"Role '{role.name}' already exists")
         db_role = Role(name=role.name)
         all_permissions = []
 
         for module_data in role.modules:
-            # Try to find module by ID or name
             db_module = None
 
             if module_data.id:
@@ -56,7 +62,6 @@ class RoleRepository:
             .limit(limit)
             .all()
         )
-
     def get_by_id(self, role_id: int):
         return (
             self.db.query(Role)
@@ -64,6 +69,20 @@ class RoleRepository:
             .filter(Role.id == role_id)
             .first()
         )
+
+    def delete(self, role_id: int) -> bool:
+        db_role = self.get_by_id(role_id)
+        if not db_role:
+            return False  # Role does not exist
+
+        try:
+            self.db.delete(db_role)
+            self.db.commit()
+            return True
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Failed to delete role {role_id}: {str(e)}")
+            return False
 
     def update(self, role_id: int, role_data: RoleCreate):
         db_role = self.get_by_id(role_id)
@@ -74,7 +93,6 @@ class RoleRepository:
         all_permissions = []
 
         for module_data in role_data.modules:
-            # Find or create module
             db_module = None
             if module_data.id:
                 db_module = self.db.query(Module).filter(Module.id == module_data.id).first()
@@ -105,9 +123,21 @@ class RoleRepository:
         self.db.refresh(db_role)
         return db_role
 
-    def delete(self, role_id: int):
+    def delete(self, role_id: int) -> bool:
         db_role = self.get_by_id(role_id)
-        if db_role:
+        if not db_role:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"No role found with ID {role_id}")
+            return False
+
+        try:
             self.db.delete(db_role)
             self.db.commit()
-        return db_role
+            logger.info(f"Role {role_id} deleted")
+            return True
+        except Exception as e:
+            self.db.rollback()
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to delete role {role_id}: {str(e)}")
+            return False

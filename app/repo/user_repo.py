@@ -5,25 +5,27 @@ from app.schemas import user as user_schema
 from app.utils.security import hash_password
 from datetime import datetime
 from typing import Optional
+from sqlalchemy import func
+
 
 class UserRepository:
     def __init__(self, db: Session):
         self.db = db
 
+
     def get_by_email(self, email: str) -> Optional[User]:
-        return self.db.query(User).filter(User.email == email).first()
+        return self.db.query(User).filter(func.lower(User.email) == email.lower()).first()
+
 
     def create(self, user: user_schema.UserCreate) -> User:
         db_user = User(
             email=user.email,
             password=hash_password(user.password),
             role_id=user.role_id,
-            business_id=user.business_id,
-            branch_id=user.branch_id,
+            business_license=user.business_license,
             phone_number=user.phone_number,
             otp_code=user.otp_code,
             otp_expiry=user.otp_expiry,
-            business_license=user.business_license
         )
         self.db.add(db_user)
         self.db.commit()
